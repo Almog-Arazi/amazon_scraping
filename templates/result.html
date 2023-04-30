@@ -68,22 +68,27 @@
         </thead>
         <tbody>
             {% for index, item in enumerate(items) %}
+            {% if item %}
             <tr>
-                <td>{{ item[0] }}</td>
-                <td><img src="{{ item[5] }}" alt="Product Image" width="64" height="64"></td>
-                <td>${{ item[3] }}</td>
-                <td><a href="{{ item[4] }}" target="_blank">View on Amazon</a></td>
+                <td>{{ item.title }}</td>
+                <td><img src="{{ item.img_url }}" alt="Product Image" width="64" height="64"></td>
+                <td>{% if item.price %}{{ item.price }}{% else %}None{% endif %}</td>
+                <td><a href="{{ item.product_url }}" target="_blank">URL of the product</a></td>
+
                 <td>
+                    <!-- Wrap the product information in a form -->
                     <form action="/product" method="post">
+                        <input type="hidden" name="asin" value="{{ item['asin'] }}">
                         <input type="hidden" name="search_query" value="{{ search_query }}">
-                        <input type="hidden" name="index" value="{{ index }}">
-                        <input type="hidden" name="asin" value="{{ item[6] }}">
+                        <!-- Replace the anchor tag with a submit button -->
                         <button type="submit">View Product Details</button>
                     </form>
                 </td>
             </tr>
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
     <a href="/">Back to Search</a>
 </body>
+</html>
