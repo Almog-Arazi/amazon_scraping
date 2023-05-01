@@ -9,6 +9,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from typing import Optional
+from decimal import Decimal
+import re
 
 app = FastAPI()
 
@@ -31,7 +33,7 @@ def fetch_page_content(url):
     driver.get(url)
     
     try:
-        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "search")))
+        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "search")))
     except TimeoutException:
         print("Element not found or it took too long to load the page.")
         driver.quit()
@@ -111,6 +113,45 @@ def extract_product_info(result) -> Optional[dict]:
     return product_info
 
 
+def get_price_from_url(url: str) -> Optional[str]:
+    driver = webdriver.Chrome()
+    driver.get(url)
+
+    WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "#productTitle"))
+    )
+
+    try:
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//*[contains(@class, 'a-price') and not(contains(@class, 'a-text-strike'))]")
+            )
+        )
+    except TimeoutException:
+        pass
+
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    driver.quit()
+
+    price_element = soup.select_one("span.a-price:not(.a-text-strike) > span.a-offscreen")
+    price = price_element.text.strip() if price_element else None
+
+    return price
+
+def parse_price(price: str) -> Optional[Decimal]:
+    if not price:
+        return None
+
+    # Extract the number from the price string
+    price_number = re.sub(r'[^\d.,]+', '', price)
+
+    # Replace any commas with dots (for consistency)
+    price_number = price_number.replace(',', '.')
+
+    return Decimal(price_number)
+
+
+
 def scrape_top_10_products(search_query):
     items = []
     item_count = 0
@@ -161,10 +202,23 @@ async def product(request: Request, asin: str = Form(...), search_query: str = F
 
     amazon_domains = ['amazon.ca', 'amazon.de', 'amazon.co.uk']
     product_urls = {}
+    prices = {}
 
     for domain in amazon_domains:
         product_url = get_product_url(asin, domain)
         product_urls[domain] = product_url
-        print(f'{domain}: {product_url}')  # Print the product URL to console
 
-    return templates.TemplateResponse("product.html", {"request": request, "product_name": product_name, "img_url": img_url, "price": price, "asin": asin})
+        # Fetch the price from the domain
+        fetched_price = get_price_from_url(product_url)
+        prices[domain] = parse_price(fetched_price)
+
+    return templates.TemplateResponse("product.html", {
+        "request": request,
+        "product_name": product_name,
+        "img_url": img_url,
+        "price": price,
+        "asin": asin,
+        "ca_price": prices['amazon.ca'],
+        "de_price": prices['amazon.de'],
+        "co_uk_price": prices['amazon.co.uk'],
+    })
