@@ -8,9 +8,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-import os
-import time
-import re
 from typing import Optional
 
 app = FastAPI()
@@ -22,7 +19,6 @@ templates = Jinja2Templates(directory="templates")
 
 def fetch_page_content(url):
     chrome_options = Options()
-   # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -35,7 +31,7 @@ def fetch_page_content(url):
     driver.get(url)
     
     try:
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "search")))
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "search")))
     except TimeoutException:
         print("Element not found or it took too long to load the page.")
         driver.quit()
@@ -49,7 +45,7 @@ def fetch_page_content(url):
 
 def build_url(search_query):
     search_query = search_query.replace(' ', '+')
-    base_url = 'https://www.amazon.com/s?k={0}'.format(search_query)
+    base_url = 'https://www.amazon.com/s?k={0}&language=en_US'.format(search_query)
     return base_url
     
 def extract_product_info(result) -> Optional[dict]:
@@ -95,10 +91,9 @@ def extract_product_info(result) -> Optional[dict]:
         except AttributeError:
             price = None
 
-    # Add the following lines to extract ASIN
     try:
-        asin = result.h2.a['href'].split('/')[3]
-    except (AttributeError, TypeError, IndexError):
+        asin = result['data-asin']
+    except (AttributeError, KeyError):
         asin = None
 
     if not title:

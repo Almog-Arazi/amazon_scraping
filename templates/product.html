@@ -73,6 +73,8 @@
                 <th class="center">Image</th>
                 <th class="center">Price</th>
                 <th class="center">Amazon.de Price</th>
+                <th class="center">Amazon.ca Price</th>
+                <th class="center">Amazon.co.uk Price</th>
             </tr>
         </thead>
         <tbody>
@@ -86,10 +88,27 @@
                         Price not found
                     {% endif %}
                 </td>
+                <td class="center">
+                    {% if ca_price %}
+                        CAD {{ ca_price }}
+                    {% else %}
+                        Price not found
+                    {% endif %}
+                </td>
+                <td class="center">
+                    {% if co_uk_price %}
+                        £{{ co_uk_price }}
+                    {% else %}
+                        Price not found
+                    {% endif %}
+                </td>
+            </tr>
+            <!-- Add a new row for the ASIN -->
+            <tr>
+                <td class="center">{{ asin }}</td>
             </tr>
         </tbody>
     </table>
     <a href="/">Back to Search</a> |
 </body>
 </html>
-
