@@ -134,6 +134,10 @@ def scrape_top_10_products(search_query):
     return items
 
 
+def get_product_url(asin, domain):
+    product_url = f'https://{domain}/dp/{asin}'
+    return product_url
+
 @app.get("/", response_class=HTMLResponse)
 async def search(request: Request):
     img_url = "/static/logo.png"
@@ -149,10 +153,18 @@ async def result(request: Request, search_query: str = Form(...)):
 async def product(request: Request, asin: str = Form(...), search_query: str = Form(...)):
     items = scrape_top_10_products(search_query)
     for item in items:
-        if item['asin'] == asin:  # Use the 'asin' key instead of the index
-            product_name = item['title']  # Use the 'title' key instead of the index
-            img_url = item['img_url']  # Use the 'img_url' key instead of the index
-            price = item['price']  # Use the 'price' key instead of the index
+        if item['asin'] == asin:
+            product_name = item['title']
+            img_url = item['img_url']
+            price = item['price']
             break
+
+    amazon_domains = ['amazon.ca', 'amazon.de', 'amazon.co.uk']
+    product_urls = {}
+
+    for domain in amazon_domains:
+        product_url = get_product_url(asin, domain)
+        product_urls[domain] = product_url
+        print(f'{domain}: {product_url}')  # Print the product URL to console
 
     return templates.TemplateResponse("product.html", {"request": request, "product_name": product_name, "img_url": img_url, "price": price, "asin": asin})
