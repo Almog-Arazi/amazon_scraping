@@ -11,6 +11,8 @@ from selenium.webdriver.chrome.options import Options
 from typing import Optional
 from decimal import Decimal
 import re
+from selenium.common.exceptions import TimeoutException
+
 
 app = FastAPI()
 
@@ -174,6 +176,19 @@ def scrape_top_10_products(search_query):
 
     return items
 
+def convert_to_usd(amount: Decimal, currency: str) -> Optional[Decimal]:
+    exchange_rates = {
+        "CAD": 0.74,  # 1 CAD = 0.74 USD (as of May 2023)
+        "EUR": 1.10,  # 1 EUR = 1.10 USD (as of May 2023)
+        "GBP": 1.25   # 1 GBP = 1.25 USD (as of May 2023)
+    }
+
+    if currency in exchange_rates:
+        usd_amount = amount * Decimal(str(exchange_rates[currency]))
+        return usd_amount
+
+    return None
+
 
 def get_product_url(asin, domain):
     product_url = f'https://{domain}/dp/{asin}'
@@ -189,7 +204,6 @@ async def result(request: Request, search_query: str = Form(...)):
     items = scrape_top_10_products(search_query)
     return templates.TemplateResponse("result.html", {"request": request, "items": items, "enumerate": enumerate, "search_query": search_query})
 
-
 @app.post("/product", response_class=HTMLResponse)
 async def product(request: Request, asin: str = Form(...), search_query: str = Form(...)):
     items = scrape_top_10_products(search_query)
@@ -201,6 +215,7 @@ async def product(request: Request, asin: str = Form(...), search_query: str = F
             break
 
     amazon_domains = ['amazon.ca', 'amazon.de', 'amazon.co.uk']
+    currencies = {'amazon.ca': 'CAD', 'amazon.de': 'EUR', 'amazon.co.uk': 'GBP'}
     product_urls = {}
     prices = {}
 
@@ -210,7 +225,11 @@ async def product(request: Request, asin: str = Form(...), search_query: str = F
 
         # Fetch the price from the domain
         fetched_price = get_price_from_url(product_url)
-        prices[domain] = parse_price(fetched_price)
+        if fetched_price is None:
+            prices[domain] = None
+            continue
+        price_in_usd = convert_to_usd(parse_price(fetched_price), currencies[domain])
+        prices[domain] = price_in_usd
 
     return templates.TemplateResponse("product.html", {
         "request": request,
