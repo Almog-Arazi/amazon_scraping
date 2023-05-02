@@ -36,7 +36,7 @@ def fetch_page_content(url):
     driver.get(url)
     
     try:
-        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "search")))
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "search")))
     except TimeoutException:
         print("Element not found or it took too long to load the page.")
         driver.quit()
@@ -120,7 +120,7 @@ def get_price_from_url(url: str) -> Optional[str]:
     driver = webdriver.Chrome()
     driver.get(url)
 
-    WebDriverWait(driver, 30).until(
+    WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "#productTitle"))
     )
 
