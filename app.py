@@ -212,6 +212,8 @@ async def product(request: Request, asin: str = Form(...), search_query: str = F
             product_name = item['title']
             img_url = item['img_url']
             price = item['price']
+            rating = item['rating']
+            product_urlcom = ['product_url']
             break
 
     amazon_domains = ['amazon.ca', 'amazon.de', 'amazon.co.uk']
@@ -234,10 +236,15 @@ async def product(request: Request, asin: str = Form(...), search_query: str = F
     return templates.TemplateResponse("product.html", {
         "request": request,
         "product_name": product_name,
+        "product_urlcom": product_urlcom,
         "img_url": img_url,
         "price": price,
         "asin": asin,
+        "rating": rating,
         "ca_price": prices['amazon.ca'],
         "de_price": prices['amazon.de'],
         "co_uk_price": prices['amazon.co.uk'],
+        "ca_url": product_urls['amazon.ca'], # Add the 'ca_url' variable here
+        "de_url": product_urls['amazon.de'], # Add the 'de_url' variable here
+        "co_uk_url": product_urls['amazon.co.uk'], # Add the 'co_uk_url' variable here
     })

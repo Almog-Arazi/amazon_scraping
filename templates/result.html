@@ -14,7 +14,7 @@
         h1 {
             text-align: center;
             font-size: 2.5rem;
-            color: #4CAF50;
+            color: #FFAC1C;
             margin-bottom: 2rem;
         }
         table {
@@ -42,15 +42,15 @@
             text-decoration: underline;
         }
         button {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #FFAC1C;
+            color: rgb(0, 0, 0);
             padding: 8px 16px;
             border: none;
             cursor: pointer;
             border-radius: 4px;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #FFAC1C;
         }
     </style>
 </head>
@@ -73,7 +73,7 @@
                 <td>{{ item.title }}</td>
                 <td><img src="{{ item.img_url }}" alt="Product Image" width="64" height="64"></td>
                 <td>{% if item.price %}{{ item.price }}{% else %}None{% endif %}</td>
-                <td><a href="{{ item.product_url }}" target="_blank">URL of the product</a></td>
+                <td><a href="{{ product_urlcom }}" target="_blank">URL of the product</a></td>
 
                 <td>
                     <!-- Wrap the product information in a form -->

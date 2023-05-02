@@ -14,7 +14,7 @@
         h1 {
             text-align: center;
             font-size: 2.5rem;
-            color: #4CAF50;
+            color: #000000;
             margin-bottom: 2rem;
         }
         img {
@@ -53,7 +53,7 @@
             display: inline;
         }
         button {
-            background-color: #4CAF50;
+            background-color: #FFAC1C;
             color: white;
             padding: 8px 16px;
             border: none;
@@ -61,7 +61,7 @@
             border-radius: 4px;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #FFAC1C;
         }
     </style>
 </head>
@@ -75,35 +75,42 @@
                 <th class="center">Amazon.de Price</th>
                 <th class="center">Amazon.ca Price</th>
                 <th class="center">Amazon.co.uk Price</th>
+                <th class="center">Rating</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td class="center"><img src="{{ img_url }}" alt="Product Image"></td>
-                <td class="center">{{ price }}</td>
                 <td class="center">
                     {% if de_price %}
-                        ${{ de_price }}
+                    <a href="https://www.amazon.com/dp/{{ asin }}" target="_blank">{{ price }}</a>
+                    {% else %}
+                        Price not found
+                    {% endif %}
+                </td>
+                <td class="center">
+                    {% if de_price %}
+                        <a href="{{ de_url }}" target="_blank">${{ de_price }}</a> <!-- Add the URL here -->
                     {% else %}
                         Price not found
                     {% endif %}
                 </td>
                 <td class="center">
                     {% if ca_price %}
-                        $ {{ ca_price }}
+                        <a href="{{ ca_url }}" target="_blank">$ {{ ca_price }}</a> <!-- Add the URL here -->
                     {% else %}
                         Price not found
                     {% endif %}
                 </td>
                 <td class="center">
                     {% if co_uk_price %}
-                        ${{ co_uk_price }}
+                        <a href="{{ co_uk_url }}" target="_blank">${{ co_uk_price }}</a> <!-- Add the URL here -->
                     {% else %}
                         Price not found
                     {% endif %}
                 </td>
+                <td class="center">{{ rating }}</td>
             </tr>
-            <!-- Add a new row for the ASIN -->
             <tr>
                 <td class="center">{{ asin }}</td>
             </tr>
