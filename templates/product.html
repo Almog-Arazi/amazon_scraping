@@ -82,31 +82,31 @@
             <tr>
                 <td class="center"><img src="{{ img_url }}" alt="Product Image"></td>
                 <td class="center">
-                    {% if de_price %}
-                    <a href="https://www.amazon.com/dp/{{ asin }}" target="_blank">{{ price }}</a>
+                    {% if price %}
+                    <a href="{{ product_urlcom }}" target="_blank">{{ price }}</a>
                     {% else %}
                         Price not found
                     {% endif %}
                 </td>
                 <td class="center">
-                    {% if de_price %}
-                        <a href="{{ de_url }}" target="_blank">${{ de_price }}</a> <!-- Add the URL here -->
-                    {% else %}
+                    {% if de_not_found %}
                         Price not found
+                    {% else %}
+                        <a href="{{ de_url }}" target="_blank">${{ de_price }}</a>
                     {% endif %}
                 </td>
                 <td class="center">
-                    {% if ca_price %}
-                        <a href="{{ ca_url }}" target="_blank">$ {{ ca_price }}</a> <!-- Add the URL here -->
-                    {% else %}
+                    {% if ca_not_found %}
                         Price not found
+                    {% else %}
+                        <a href="{{ ca_url }}" target="_blank">$ {{ ca_price }}</a>
                     {% endif %}
                 </td>
                 <td class="center">
-                    {% if co_uk_price %}
-                        <a href="{{ co_uk_url }}" target="_blank">${{ co_uk_price }}</a> <!-- Add the URL here -->
-                    {% else %}
+                    {% if co_uk_not_found %}
                         Price not found
+                    {% else %}
+                        <a href="{{ co_uk_url }}" target="_blank">${{ co_uk_price }}</a>
                     {% endif %}
                 </td>
                 <td class="center">{{ rating }}</td>
@@ -116,6 +116,6 @@
             </tr>
         </tbody>
     </table>
-    <a href="/">Back to Search</a> |
+    <a href="/">Back to Search</a> 
 </body>
 </html>

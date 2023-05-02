@@ -12,6 +12,7 @@ from typing import Optional
 from decimal import Decimal
 import re
 from selenium.common.exceptions import TimeoutException
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 app = FastAPI()
@@ -190,6 +191,18 @@ def convert_to_usd(amount: Decimal, currency: str) -> Optional[Decimal]:
     return None
 
 
+def fetch_price(domain, asin):
+    url = get_product_url(asin, domain)
+    try:
+        price = get_price_from_url(url)
+    except Exception as e:
+        print(f"Error fetching price for domain: {domain}, Error: {e}")
+        price = None
+    return url, price, domain
+
+
+
+
 def get_product_url(asin, domain):
     product_url = f'https://{domain}/dp/{asin}'
     return product_url
@@ -213,25 +226,30 @@ async def product(request: Request, asin: str = Form(...), search_query: str = F
             img_url = item['img_url']
             price = item['price']
             rating = item['rating']
-            product_urlcom = ['product_url']
+            product_urlcom = item['product_url']
             break
 
     amazon_domains = ['amazon.ca', 'amazon.de', 'amazon.co.uk']
     currencies = {'amazon.ca': 'CAD', 'amazon.de': 'EUR', 'amazon.co.uk': 'GBP'}
     product_urls = {}
-    prices = {}
+    prices = {domain: None for domain in amazon_domains}
+    price_not_found = {domain: False for domain in amazon_domains}
 
-    for domain in amazon_domains:
-        product_url = get_product_url(asin, domain)
-        product_urls[domain] = product_url
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        futures = [executor.submit(fetch_price, domain, asin) for domain in amazon_domains]
 
-        # Fetch the price from the domain
-        fetched_price = get_price_from_url(product_url)
-        if fetched_price is None:
-            prices[domain] = None
-            continue
-        price_in_usd = convert_to_usd(parse_price(fetched_price), currencies[domain])
-        prices[domain] = price_in_usd
+        for future in as_completed(futures):
+            try:
+                domain, fetched_price, fetched_domain = future.result()
+                if fetched_price is not None:
+                    price_in_usd = convert_to_usd(parse_price(fetched_price), currencies[fetched_domain])
+                    prices[fetched_domain] = price_in_usd
+                else:
+                    price_not_found[fetched_domain] = True
+
+                product_urls[fetched_domain] = f'https://{fetched_domain}/dp/{asin}'
+            except Exception as e:
+                print(f"Error fetching price for domain: {fetched_domain}, Error: {e}")
 
     return templates.TemplateResponse("product.html", {
         "request": request,
@@ -241,10 +259,13 @@ async def product(request: Request, asin: str = Form(...), search_query: str = F
         "price": price,
         "asin": asin,
         "rating": rating,
-        "ca_price": prices['amazon.ca'],
-        "de_price": prices['amazon.de'],
-        "co_uk_price": prices['amazon.co.uk'],
-        "ca_url": product_urls['amazon.ca'], # Add the 'ca_url' variable here
-        "de_url": product_urls['amazon.de'], # Add the 'de_url' variable here
-        "co_uk_url": product_urls['amazon.co.uk'], # Add the 'co_uk_url' variable here
+        "ca_price": prices.get('amazon.ca', None),
+        "de_price": prices.get('amazon.de', None),
+        "co_uk_price": prices.get('amazon.co.uk', None),
+        "ca_url": product_urls.get('amazon.ca', None),
+        "de_url": product_urls.get('amazon.de', None),
+        "co_uk_url": product_urls.get('amazon.co.uk', None),
+        "ca_not_found": price_not_found.get('amazon.ca', False),
+        "de_not_found": price_not_found.get('amazon.de', False),
+        "co_uk_not_found": price_not_found.get('amazon.co.uk', False),
     })
