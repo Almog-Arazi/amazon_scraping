@@ -13,7 +13,11 @@ from decimal import Decimal
 import re
 from selenium.common.exceptions import TimeoutException
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from database import create_connection
+from datetime import datetime
+from database import init_db
 
+init_db()
 
 app = FastAPI()
 
@@ -251,6 +255,22 @@ async def product(request: Request, asin: str = Form(...), search_query: str = F
             except Exception as e:
                 print(f"Error fetching price for domain: {fetched_domain}, Error: {e}")
 
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''INSERT INTO product_data (query, timestamp, item_name, com_price, co_uk_price, de_price, ca_price)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)''',
+               (search_query,
+                datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                product_name,
+                float(parse_price(price)) if price is not None else None,
+                float(prices.get('amazon.co.uk', None)) if prices.get('amazon.co.uk', None) is not None else None,
+                float(prices.get('amazon.de', None)) if prices.get('amazon.de', None) is not None else None,
+                float(prices.get('amazon.ca', None)) if prices.get('amazon.ca', None) is not None else None))
+
+    conn.commit()
+    conn.close()
+       
     return templates.TemplateResponse("product.html", {
         "request": request,
         "product_name": product_name,
