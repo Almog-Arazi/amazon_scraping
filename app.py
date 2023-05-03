@@ -124,12 +124,12 @@ def get_price_from_url(url: str) -> Optional[str]:
     driver = webdriver.Chrome()
     driver.get(url)
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "#productTitle"))
     )
 
     try:
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 20).until(
             EC.presence_of_element_located(
                 (By.XPATH, "//*[contains(@class, 'a-price') and not(contains(@class, 'a-text-strike'))]")
             )

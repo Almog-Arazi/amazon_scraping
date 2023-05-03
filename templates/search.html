@@ -71,7 +71,7 @@
         }
     </style>
 </head>
-
+</head>
 <body>
     <div class="container">
         <img src="{{ img_url }}" alt="Amazon Logo">
@@ -79,14 +79,43 @@
         <h2>Amazon Scraper by Almog Arazi</h2>
         <form action="/result" method="post">
             <input type="text" name="search_query" placeholder="Search products...">
-            <button type="submit">Search</button>
+            <button type="submit" onclick="performSearch(event)">Search</button>
         </form>
         <button onclick="window.location.href='/past_searches'" style="margin-top: 1rem;">My Past Searches</button>
     </div>
-    </div>
     <script>
-        async function search() {
-            const searchQuery = document.getElementById("search-query").value;
+        let searchCounter = getSearchCounter();
+
+        function getSearchCounter() {
+            const lastReset = localStorage.getItem("lastReset");
+            if (lastReset === null || hasPassed24Hours(lastReset)) {
+                localStorage.setItem("lastReset", new Date().getTime());
+                localStorage.setItem("searchCounter", 0);
+            }
+            return parseInt(localStorage.getItem("searchCounter")) || 0;
+        }
+
+        function hasPassed24Hours(timestamp) {
+            const now = new Date().getTime();
+            const oneDay = 24 * 60 * 60 * 1000;
+            return now - timestamp > oneDay;
+        }
+
+        function resetCounter() {
+            localStorage.setItem("searchCounter", 0);
+            searchCounter = 0;
+            console.log("Counter reset successfully.");
+        }
+
+        async function performSearch(event) {
+            event.preventDefault(); // Prevent form submission
+
+            if (searchCounter >= 3) {
+                alert('Daily searches cap reached , contact to Almog Arazi');
+                return;
+            }
+
+            const searchQuery = document.getElementsByName("search_query")[0].value;
             const response = await fetch("/result", {
                 method: "POST",
                 headers: {
@@ -94,6 +123,10 @@
                 },
                 body: `search_query=${encodeURIComponent(searchQuery)}`
             });
+
+            searchCounter++;
+            localStorage.setItem("searchCounter", searchCounter);
+
             const resultHTML = await response.text();
             document.open();
             document.write(resultHTML);
@@ -103,3 +136,4 @@
 </body>
 
 </html>
+
