@@ -10,6 +10,9 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 2rem;
+            background-image: url('/static/background-image.jpg');/* Add this line with the name of your image file */
+            background-size: cover; /* Add this line */
+            background-position: center; /* Add this line */
         }
         h1 {
             text-align: center;
@@ -34,12 +37,9 @@
         tr:nth-child(even) {
             background-color: #f8f8f8;
         }
-        a {
-            color: #2a6496;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
+        .back-to-search {
+            display: flex;
+            justify-content: center;
         }
         button {
             background-color: #FFAC1C;
@@ -48,6 +48,8 @@
             border: none;
             cursor: pointer;
             border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
         }
         button:hover {
             background-color: #FFAC1C;
@@ -89,6 +91,8 @@
             {% endfor %}
         </tbody>
     </table>
-    <a href="/">Back to Search</a>
+    <div class="back-to-search">
+        <button onclick="location.href='/'">Back to Search</button>
+    </div>
 </body>
 </html>
