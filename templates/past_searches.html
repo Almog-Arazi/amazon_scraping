@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Past Searches</title>
+    <style>
+        /* Add your custom styles here */
+    </style>
+</head>
+
+<body>
+    <h1>My Past Searches</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Search Query</th>
+                <th>Product Name</th>
+                <th>Amazon.com Price</th>
+                <th>Amazon.ca Price</th>
+                <th>Amazon.de Price</th>
+                <th>Amazon.co.uk Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in past_searches %}
+            <tr>
+                <td>{{ item.timestamp }}</td>
+                <td>{{ item.query }}</td>
+                <td>{{ item.item_name }}</td>
+                <td>{{ item.com_price }}</td>
+                <td>{{ item.ca_price }}</td>
+                <td>{{ item.de_price }}</td>
+                <td>{{ item.co_uk_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p><a href="/">Back to search</a></p>
+</body>
+
+</html>

@@ -289,3 +289,24 @@ async def product(request: Request, asin: str = Form(...), search_query: str = F
         "de_not_found": price_not_found.get('amazon.de', False),
         "co_uk_not_found": price_not_found.get('amazon.co.uk', False),
     })
+
+@app.get("/past_searches", response_class=HTMLResponse)
+async def past_searches(request: Request):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM product_data")
+    past_searches = cursor.fetchall()
+    conn.close()
+
+    # Convert the fetched data into a list of dictionaries
+    past_searches_list = [{
+        "timestamp": search[1],
+        "query": search[2],
+        "item_name": search[3],
+        "com_price": search[4],
+        "ca_price": search[5],
+        "de_price": search[6],
+        "co_uk_price": search[7]
+    } for search in past_searches]
+
+    return templates.TemplateResponse("past_searches.html", {"request": request, "past_searches": past_searches_list})
