@@ -36,7 +36,7 @@ def fetch_page_content(url):
     chrome_options.add_argument("--disable-infobars")
     chrome_options.add_argument("--disable-popup-blocking")
     
-    driver = webdriver.Chrome(executable_path='/Users/almog/chromedriver/chromedriver', options=chrome_options)
+    driver = webdriver.Chrome(executable_path='/Users/almog/chromedriver/chromedriver', options=chrome_options) # change that
     driver.get(url)
     
     try:
