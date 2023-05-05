@@ -57,7 +57,9 @@ if you want to pass the alert of Daily searches cap, write
 
 **know it's slow, but it is my purpose to avoid Amazon's block.**
 
-[![](https://ibb.co/6b6CnWq)](http://https://ibb.co/6b6CnWq)
+![](https://i.ibb.co/zbKvn4t/2023-05-05-223306.png)
+
+![](https://i.ibb.co/DpHWRzJ/2023-05-05-223649.png)
 
 ##   enjoy :)
 
