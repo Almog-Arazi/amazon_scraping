@@ -2,7 +2,7 @@
 
 This script was developed during the course "From Idea to App using AI Tools," leveraging the ChatGPT AI language model.
 
-four files for a web scraping project that extracts product information from Amazon.com. The files are:
+six files for a web scraping project that extracts product information from Amazon.com. The files are:
 
 **app.py:** This is the main file written in Python using the FastAPI framework. It contains the code for the web server, routes, and the functions to scrape Amazon products.
 
